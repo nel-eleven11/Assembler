@@ -31,7 +31,7 @@
     msg_pc db "Puede continuar como pequeño contribuyente",0AH, 0
     msg_resumen db "%d , NIT: %d , Facturado: %d , IVA: %d ",0AH, 0
 	msg_monto db "Ingrese el monto facturado",0AH, 0
-	monto_1   db "%d", 0
+	monto_1 db "%d", 0
 
 .code
 
@@ -46,12 +46,32 @@
 
 main PROC
 
-    push ebp
-    mov ebp, esp
-
 ;se pide el monto facturado
 
+	mov esi, offset arr_montos
+	mov ebx, sizeof	arr_montos
+
 ingresar:
+
+	push offset msg_monto   
+    call printf          
+    add esp, 4    
+	lea eax, [ebp-4]
+
+	push eax             ; Pone la dirección en la pila
+    push offset monto_1  ; Pone la dirección de la cadena de formato en la pila
+    call scanf      
+
+	add esp, 8           ; Limpia la pila
+    mov eax, [ebp-4]	; Mueve el número ingresado a eax
+
+	mov [esi], eax      ; DIRECCIONAM. INDIRECTO: guarda el valor ingresado en el i-esimo elemento del array
+
+	sub ebx, 4			; Decrementar "contador"
+	add esi, 4			; Moverse al sig. elem. del array
+	cmp ebx,0			; Aún faltan ingresar elementos en el array?
+	jne ingresar			; Sí, entonces repetir proceso desde ingresar
+
 
 ;se calcula el iva
 
