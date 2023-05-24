@@ -1,0 +1,111 @@
+;Universidad del Valle de Guatemala
+;Nelson García Bravatti 22434
+;Gabriel Paz 221087
+;Org de computadoras y Assembler
+;corto 6
+;Descripción: Realiza un cobro, da vuelto si el pago excede el cobro
+
+.386
+.model flat, stdcall, c
+.stack 4096
+
+.data
+
+	fmt db "%d ", 0AH, 0
+	msg_inicial db "Bienvenido al programa de cobros",0AH, 0
+	msg_cobrar db "Ingrese el monto a cobrar",0AH, 0
+	msg_valor db "Ingrese el billete con el cual pagara",0AH, 0
+    monto1   db "%d", 0
+    pago1   db "%d", 0
+    msg_m db "El monto a cobrar es : %d", 0ah, 0
+    msg_pago db "El pago hecho es de : %d", 0ah, 0
+    msg_cambio db "Su cambio es de : %d", 0ah, 0
+
+;variables generales
+
+    monto dword 0
+    pago dword 0 
+    cambio dword 0
+
+.code
+
+    includelib libucrt.lib
+    includelib legacy_stdio_definitions.lib
+    includelib libcmt.lib
+    includelib libvcruntime.lib
+
+    extrn printf:near
+    extrn scanf:near
+    extrn exit:near
+
+main PROC
+
+    push offset msg_inicial  ;coloca la dirección del mensage en la pila, mensaje de bienvenida
+    call printf				;se imprime el mensage
+    add esp, 4				;limpiar pila
+
+;se hace el cobro
+
+    push offset msg_cobrar  ;coloca la dirección del mensage en la pila, mensage para cobrar
+    call printf				;se imprime el mensage
+    add esp, 4				;limpiar pila
+
+    lea eax, [ebp-4]     ; Obtiene la dirección de la variable local
+    push eax             ; Pone la dirección en la pila
+    push offset monto1    ; Pone la dirección de la cadena de formato en la pila
+    call scanf           ; Llama a la función scanf para leer el número ingresado
+    add esp, 8           ; Limpia la pila
+
+    mov eax, [ebp-4]     ; Mueve el número ingresado a eax
+    mov monto, eax       ;se guarda el monto
+    push eax             ; Pone el número en la pila
+    push offset msg_m   ; Pone la dirección de la cadena de formato en la pila
+    call printf          ; Llama a la función printf para imprimir el cobro realizado
+    add esp, 8           ; Limpia la pila
+
+;se hace el pago
+
+    push offset msg_valor  ;coloca la dirección del mensage en la pila, mensage para pagar
+    call printf				;se imprime el mensage
+    add esp, 4				;limpiar pila
+
+    lea eax, [ebp-4]     ; Obtiene la dirección de la variable local
+    push eax             ; Pone la dirección en la pila
+    push offset pago1    ; Pone la dirección de la cadena de formato en la pila
+    call scanf           ; Llama a la función scanf para leer el número ingresado, se toma el dinero
+    add esp, 8           ; Limpia la pila
+
+    mov eax, [ebp-4]     ; Mueve el número ingresado a eax
+    mov pago, eax          ; se guarda el pago
+    push eax             ; Pone el número en la pila
+    push offset msg_pago ; Pone la dirección de la cadena de formato en la pila
+    call printf          ; Llama a la función printf para imprimir el dinero que se dio
+    add esp, 8           ; Limpia la pila
+
+;se calcula el vuelto
+
+    call cal_vuelto
+
+
+main ENDP
+
+
+cal_vuelto PROC
+
+    sub eax, eax
+    sub ebx, ebx
+    mov ebx, monto
+    mov eax, pago
+    sub eax, ebx
+    mov cambio, eax
+    mov eax, cambio
+
+    push eax
+    push offset msg_cambio  ;coloca la dirección del mensage en la pila, mensage para pagar
+    call printf				;se imprime el mensage
+    add esp, 8				;limpiar pila
+
+
+cal_vuelto ENDP
+
+END
