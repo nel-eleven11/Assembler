@@ -1,0 +1,18 @@
+﻿  Assembling nuevo.asm...
+nuevo.asm(8): error A2008: syntax error : .
+nuevo.asm(9): error A2008: syntax error : .
+nuevo.asm(10): error A2008: syntax error : .
+nuevo.asm(43): error A2070: invalid instruction operands
+nuevo.asm(49): error A2070: invalid instruction operands
+nuevo.asm(54): error A2070: invalid instruction operands
+nuevo.asm(55): error A2070: invalid instruction operands
+nuevo.asm(61): error A2070: invalid instruction operands
+nuevo.asm(62): error A2070: invalid instruction operands
+nuevo.asm(68): error A2070: invalid instruction operands
+nuevo.asm(73): error A2070: invalid instruction operands
+nuevo.asm(74): error A2070: invalid instruction operands
+nuevo.asm(80): error A2070: invalid instruction operands
+nuevo.asm(81): error A2070: invalid instruction operands
+nuevo.asm(103): error A2070: invalid instruction operands
+nuevo.asm(104): error A2070: invalid instruction operands
+E:\Nelson E\visual_studio\Microsoft VS\ide\MSBuild\Microsoft\VC\v170\BuildCustomizations\masm.targets(70,5): error MSB3721: El comando "ml64.exe /c /nologo /Zi /Fo"x64\Debug\nuevo.obj" /W3 /errorReport:prompt  /Tanuevo.asm" salió con el código 1.

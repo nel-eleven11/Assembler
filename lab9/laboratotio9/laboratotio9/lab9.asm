@@ -127,11 +127,11 @@ label2:
 	
 	mov eax, [esi]   ; DIRECCIONAM. INDIRECTO: Cargar el valor del i-esimo elem de array de montos a eax 
 
-	add monto_total, eax
-	mov ecx, 5
+	add monto_total, eax    ;se agrega el monto al monto total
+	mov ecx, 5				;se multiplica por 5
 	mul ecx
 	mov ecx, 100d
-	div ecx
+	div ecx					;se divide el monto por 100
 
 	mov [edi], eax  ; DIRECCIONAM. INDIRECTO: guarda el valor ingresado en el i-esimo elemento del array del iva
 
