@@ -1,3 +1,2 @@
 ﻿  Assembling parte2.asm...
-parte2.asm(180): fatal error A1011: directive must be in control block
-E:\Nelson E\visual_studio\Microsoft VS\ide\MSBuild\Microsoft\VC\v170\BuildCustomizations\masm.targets(70,5): error MSB3721: El comando "ml.exe /c /nologo /Zi /Fo"Debug\parte2.obj" /W3 /errorReport:prompt  /Taparte2.asm" salió con el código 1.
+  lab8_parte2.vcxproj -> E:\Nelson E\UVG\Org y Assembler\proyectos_asm\Assembler\lab8_parte2\lab8_parte2\Debug\lab8_parte2.exe

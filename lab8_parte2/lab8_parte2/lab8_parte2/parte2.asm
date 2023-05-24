@@ -168,6 +168,7 @@ main PROC
 	.ENDIF
 
 	;Muestra la calificacion de la superintendencia de bancos
+	.IF sib == 000Ah
 		push offset msgAprobacion
 		push DWORD ptr [sib]
 		push offset msgCalifica
