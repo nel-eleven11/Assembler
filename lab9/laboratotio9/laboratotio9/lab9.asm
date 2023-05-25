@@ -11,7 +11,7 @@
 
 .data
 
-;variables generales
+	;variables generales
 
     monto_total dword 0
 	iva_calculado dword 0
@@ -33,6 +33,8 @@
 	msg_monto db "Ingrese el monto facturado",0AH, 0
 	monto_1 db "%d", 0
 
+
+
 .code
 
     includelib libucrt.lib
@@ -52,13 +54,13 @@ main PROC
 
 ;se calcula el iva
  
-	call calcular_iva
+	call calcular_iva ;se llama subrutina
 
 
 
 ;se imprimen los datos
 
-imprimir_datos:
+;imprimir_datos:
 
 ;se analiza el monto de facturacion anual
 
@@ -84,11 +86,13 @@ fin:
 	call exit
 
 
+
 main ENDP
+
 
 ingresar PROC
 
-	mov esi, offset arr_montos
+    mov esi, offset arr_montos
 	mov ebx, sizeof	arr_montos
 
 label1:
@@ -114,6 +118,7 @@ label1:
 
 ingresar ENDP
 
+
 calcular_iva PROC
 
 	mov esi, offset arr_montos
@@ -128,8 +133,8 @@ label2:
 	mov eax, [esi]   ; DIRECCIONAM. INDIRECTO: Cargar el valor del i-esimo elem de array de montos a eax 
 
 	add monto_total, eax    ;se agrega el monto al monto total
-	mov ecx, 5				;se multiplica por 5
-	mul ecx
+	mov ecx, 5				
+	mul ecx					;se multiplica por 5
 	mov ecx, 100d
 	div ecx					;se divide el monto por 100
 
@@ -144,5 +149,4 @@ label2:
 
 calcular_iva ENDP
 
-
-END main
+END
