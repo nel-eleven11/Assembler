@@ -16,6 +16,7 @@
     monto_total dword 0
 	iva_calculado dword 0
 	monto dword 0
+	contador dword 12
 
 ;arreglos
 
@@ -28,10 +29,11 @@
 
     fmt db "%d ", 0AH, 0
 	msg_iva db "Debe actualizar su regime tributario a IVA General",0AH, 0
-    msg_pc db "Puede continuar como pequeño contribuyente",0AH, 0
-    msg_resumen db "%s , NIT: %d , Facturado: %d , IVA: %d ",0AH, 0
+    msg_pc db "Puede continuar como pequenio contribuyente",0AH, 0
+    msg_resumen db "Facturado: %d , IVA: %d ",0AH, 0
 	msg_monto db "Ingrese el monto facturado",0AH, 0
 	monto_1 db "%d", 0
+	msg_montotot db "El monto total es: %d",0AH, 0
 
 
 
@@ -50,106 +52,116 @@ main PROC
 
 ;se pide el monto facturado
 
-	call ingresar ;se llama subrutina
+	mov esi, offset arr_montos
+	mov ebx, sizeof	arr_montos
+
+	label1:
+
+		push offset msg_monto  ;coloca la dirección del mensage en la pila
+		call printf				;se imprime el mensage
+		add esp, 4				;limpiar pila
+		lea eax, [ebp-4]		; Obtiene la dirección de la variable local
+
+		push eax             ; Pone la dirección en la pila
+		push offset monto_1  ; Pone la dirección de la cadena de formato en la pila
+		call scanf			;llamar la funcion scanf
+
+		add esp, 8           ; Limpia la pila
+		mov eax, [ebp-4]	; Mueve el número ingresado a eax
+
+		mov [esi], eax      ; DIRECCIONAM. INDIRECTO: guarda el valor ingresado en el i-esimo elemento del array de montos
+
+		sub ebx, 4			; Decrementar "contador"
+		add esi, 4			; Moverse al sig. elem. del array
+		cmp ebx,0			; Aún faltan ingresar elementos en el array?
+		jne label1		; Sí, entonces repetir proceso desde label1
+
+	
 
 ;se calcula el iva
  
-	call calcular_iva ;se llama subrutina
+	mov esi, offset arr_montos
+	mov ebx, sizeof	arr_montos
+	mov edi, offset arr_iva
+	
 
+	label2:
+
+		sub eax, eax
+		sub ecx, ecx
+	
+		mov eax, [esi]   ; DIRECCIONAM. INDIRECTO: Cargar el valor del i-esimo elem de array de montos a eax 
+
+		add monto_total, eax    ;se agrega el monto al monto total
+		mov ecx, 5				
+		mul ecx					;se multiplica por 5
+		mov ecx, 100d
+		div ecx					;se divide el monto por 100
+
+		mov [edi], eax  ; DIRECCIONAM. INDIRECTO: guarda el valor ingresado en el i-esimo elemento del array del iva
+
+
+		sub ebx, 4			; Decrementar "contador"
+		add esi, 4			; Moverse al sig. elem. del array de montos
+		add edi, 4			; Moverse al sig. elem. del array de iva
+		cmp ebx,0			; Aún hay elementos en el array?
+		jne label2			; Sí, entonces repetir proceso desde label2
+	
 
 
 ;se imprimen los datos
 
-;imprimir_datos:
+	mov esi, offset arr_montos   ;array de los montos
+	mov edi, offset arr_iva      ;array del iva
+	mov ecx, sizeof	arr_montos
+	
+
+	imprimir:
+
+		mov eax, [edi]
+		mov ebx, [esi]
+		push eax
+		push ebx
+		push offset msg_resumen
+		add esp, 12
+
+		sub ecx, 4
+		add esi, 4
+		add edi, 4
+		cmp ecx, 0
+		jne imprimir
 
 ;se analiza el monto de facturacion anual
 
+	mov eax, monto_total
+	push eax
+	push offset msg_montotot
+	add esp, 8
 	mov ecx, 150000d
 	cmp monto_total, ecx
 	jg lp1
 	jl lp2	
 
 ;es IVA general
-lp1:
-	push offset msg_iva
-	call printf
-	add esp, 4
-	jmp fin
+	lp1:
+		push offset msg_iva
+		call printf
+		add esp, 4
+		jmp fin
 	
-;sigue siendo pequeño contribuyente
-lp2:
-	push offset msg_pc
-	call printf
-	add esp, 4
-	jmp fin
+;sigue siendo pequenio contribuyente
+	lp2:
+		push offset msg_pc
+		call printf
+		add esp, 4
+		jmp fin
 
-fin:
-	push 0
-	call exit
-
+	fin:
+		push 0
+		call exit
+	
+	RET
 
 
 main ENDP
-
-
-ingresar PROC
-
-    mov esi, offset arr_montos
-	mov ebx, sizeof	arr_montos
-
-label1:
-
-	push offset msg_monto  ;coloca la dirección del mensage en la pila
-    call printf				;se imprime el mensage
-    add esp, 4				;limpiar pila
-	lea eax, [ebp-4]		; Obtiene la dirección de la variable local
-
-	push eax             ; Pone la dirección en la pila
-    push offset monto_1  ; Pone la dirección de la cadena de formato en la pila
-    call scanf			;llamar la funcion scanf
-
-	add esp, 8           ; Limpia la pila
-    mov eax, [ebp-4]	; Mueve el número ingresado a eax
-
-	mov [esi], eax      ; DIRECCIONAM. INDIRECTO: guarda el valor ingresado en el i-esimo elemento del array de montos
-
-	sub ebx, 4			; Decrementar "contador"
-	add esi, 4			; Moverse al sig. elem. del array
-	cmp ebx,0			; Aún faltan ingresar elementos en el array?
-	jne label1		; Sí, entonces repetir proceso desde label1
-
-ingresar ENDP
-
-
-calcular_iva PROC
-
-	mov esi, offset arr_montos
-	mov ebx, sizeof	arr_montos
-	mov edi, offset arr_iva
-	mov edx, offset arr_meses
-
-label2:
-
-	sub eax, eax
-	sub ecx, ecx
-	
-	mov eax, [esi]   ; DIRECCIONAM. INDIRECTO: Cargar el valor del i-esimo elem de array de montos a eax 
-
-	add monto_total, eax    ;se agrega el monto al monto total
-	mov ecx, 5				
-	mul ecx					;se multiplica por 5
-	mov ecx, 100d
-	div ecx					;se divide el monto por 100
-
-	mov [edi], eax  ; DIRECCIONAM. INDIRECTO: guarda el valor ingresado en el i-esimo elemento del array del iva
-
-
-	sub ebx, 4			; Decrementar "contador"
-	add esi, 4			; Moverse al sig. elem. del array de montos
-	add edi, 4			; Moverse al sig. elem. del array de iva
-	cmp ebx,0			; Aún hay elementos en el array?
-	jne label2			; Sí, entonces repetir proceso desde label2
-
-calcular_iva ENDP
-
 END
