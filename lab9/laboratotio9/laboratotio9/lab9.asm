@@ -19,7 +19,7 @@
 
 ;arreglos
 
-    arr_IVA dword 0,0,0,0,0,0,0,0,0,0,0,0
+    arr_iva dword 0,0,0,0,0,0,0,0,0,0,0,0
     arr_meses db "enero 2022","febrero 2022","marzo 2022","abril 2022","mayo 2022","junio 2022","julio 2022","agosto 2022","septiembre 2022","octubre 2022","noviembre 2022","diciembre 2022"
     arr_nit dword 9812456,7548123,6325891,1456237,8765432,9876543,3698521,5214789,2365418,6541238,7896541,1236987
     arr_montos dword 0,0,0,0,0,0,0,0,0,0,0,0
@@ -29,7 +29,7 @@
     fmt db "%d ", 0AH, 0
 	msg_iva db "Debe actualizar su regime tributario a IVA General",0AH, 0
     msg_pc db "Puede continuar como pequeño contribuyente",0AH, 0
-    msg_resumen db "%d , NIT: %d , Facturado: %d , IVA: %d ",0AH, 0
+    msg_resumen db "%s , NIT: %d , Facturado: %d , IVA: %d ",0AH, 0
 	msg_monto db "Ingrese el monto facturado",0AH, 0
 	monto_1 db "%d", 0
 
@@ -73,12 +73,14 @@ main PROC
 lp1:
 	push offset msg_iva
 	call printf
+	add esp, 4
 	jmp fin
 	
 ;sigue siendo pequeño contribuyente
 lp2:
 	push offset msg_pc
 	call printf
+	add esp, 4
 	jmp fin
 
 fin:
@@ -123,7 +125,8 @@ calcular_iva PROC
 
 	mov esi, offset arr_montos
 	mov ebx, sizeof	arr_montos
-	mov edi, offset arr_IVA
+	mov edi, offset arr_iva
+	mov edx, offset arr_meses
 
 label2:
 
