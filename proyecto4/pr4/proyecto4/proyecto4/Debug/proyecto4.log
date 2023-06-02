@@ -1,2 +1,3 @@
 ﻿  Assembling fugaletras.asm...
-  proyecto4.vcxproj -> E:\Nelson E\UVG\Org y Assembler\proyectos_asm\Assembler\proyecto4\pr4\proyecto4\Debug\proyecto4.exe
+fugaletras.asm(299): error A2008: syntax error : add
+E:\Nelson E\visual_studio\Microsoft VS\ide\MSBuild\Microsoft\VC\v170\BuildCustomizations\masm.targets(70,5): error MSB3721: El comando "ml.exe /c /nologo /Zi /Fo"Debug\fugaletras.obj" /W3 /errorReport:prompt  /Tafugaletras.asm" salió con el código 1.

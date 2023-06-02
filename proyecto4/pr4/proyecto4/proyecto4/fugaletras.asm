@@ -45,7 +45,7 @@
     char BYTE ?
     letra_i BYTE ?
     letra dword 0
-    letra_l BYTE ?
+    letra_l BYTE 2
     turno1 dword 0
     turno2 dword 0
     opcion dword 0
@@ -65,6 +65,7 @@
     arr_palabras BYTE "manzana",0, "perro",0, "gato",0, "sol",0, "luna",0, "casa",0, "arbol",0, "coche",0, "libro",0, "amigo",0
     arr_incompleta BYTE "man_ana",0, "per_o",0, "ga_o",0, "so_",0, "lu_a",0, "ca_a",0, "_rbol",0, "coc_e",0, "lib_o",0, "ami_o",0
     arr_letras BYTE "z",0, "r",0, "t",0, "l",0, "n",0, "s",0, "a",0, "h",0, "r",0, "g",0
+    arr_num BYTE 8
 
 .code
 
@@ -216,7 +217,7 @@ lb_turnos:
         add esp, 4
     .ENDIF
 
-    add turno_palabra, 1d
+    inc turno_palabra
 
     mov ecx, turno1
     mov edx, turno2
@@ -230,25 +231,23 @@ lb_turnos:
 lb_contarletra:
 
     mov ebx, contador1
-    movzx eax, [arr_letras + ebx]
-    
-    .IF ebx == turno_palabra
-        jmp lb_contarpalabra
-    .ENDIF
-
-    .If eax == 0
-        add ebx, 1d
+    mov ecx, sel_letra
+    mov eax, turno_palabra
+    .IF ebx == eax
+        jmp lb_ingresarletra
     .ELSE
+        add ecx, 2d
+        inc ebx
+        mov contador1, ebx
         jmp lb_contarletra
     .ENDIF
-    mov contador1, ebx
-    
-    mov sel_letra, ebx
+
+    mov sel_letra, ecx
 
 lb_contarpalabra:
 
     mov ebx, contador2
-    movzx eax, [arr_incompleta + ebx]
+    movzx eax, [arr_incompleta]
     
     .IF ebx == turno_palabra
         jmp lb_ingresarletra
@@ -270,8 +269,7 @@ lb_ingresarletra:
     add esp, 4
 
     mov ebx, sel_palabra
-    
-    lea eax,[arr_incompleta + ebx]    ; se carga la dirección de la palabra
+    lea eax,[arr_incompleta]    ; se carga la dirección de la palabra
     push eax                        ; Pone la dirección en la pila
     push offset msg_pal
     call printf
@@ -298,13 +296,14 @@ lb_ingresarletra:
 label_verificarletra:
 
     mov ebx, sel_letra    
-    lea ecx, [arr_letras + ebx]
+    
+    lea ecx, [arr_letras]
     push ecx
     push offset msg_esperada
     call printf
     add esp, 8
     sub ebx, ebx
-    movzx eax, [arr_letras + ebx]
+    movzx eax, [arr_letras]
     movzx ebx, letra_i
 
     .IF ebx == eax
