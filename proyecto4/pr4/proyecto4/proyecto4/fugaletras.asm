@@ -28,6 +28,7 @@
     msg_turno2 db "Turno del jugador 2",0AH,0
     msg_ganador1 BYTE "Gana el jugador 1", 0AH, 0
 	msg_ganador2 BYTE "Gana el jugador 2", 0AH, 0
+    msg_esperada BYTE "Letra esperada: %s",0AH,0
 
 ;varibles generales
     puntaje1 dword 0
@@ -38,17 +39,20 @@
     letra_i BYTE ?
     letra dword 0
     numero_random dword 0
-    letra_l BYTE "a"
+    letra_l BYTE ?
     turno1 dword 0
     turno2 dword 0
     
 
 ;arrays
 
-    arr_palabras BYTE "manzana", "perro", "gato", "sol", "luna", "casa", "arbol", "coche", "libro", "amigo", "playa", "ciudad", "alegría", "amor", "risa", "felicidad", "caminar", "correr", "saltar", "dormir", "comer", "beber", "jugar", "aprender", "cantar", "bailar", "viajar", "familia", "trabajo", "estudiar", "computadora", "teléfono", "televisión", "música", "deporte", "montaña", "mar", "vida", "tiempo", "espacio"
-    arr_incompleta BYTE "man_ana", "per_o", "ga_o", "so_", "lu_a", "ca_a", "_rbol", "coc_e", "lib_o", "ami_o", "pla_a", "ciuda_", "alegrí_", "am_r", "ri_a", "felicida_", "cam_nar", "cor_er", "s ltar", "dormi_", "co_er", "be_er", "ju_ar", "aprende_", "can_ar", "baila_", " iajar", "f_milia", "traba_o", "es_udiar", "computa_ora", "telé_ono", "televi_ión", "músi_", "depor_e", "monta_a", "ma_", "vi_a", "tiem_o", "es_acio"
-	arr_letras BYTE "z", "r", "t", "l", "n", "s", "a", "h", "r", "g", "y", "d", "a", "o", "s", "d", "i", "r", "s", "r", "m", "b", "g", "r", "t", "r", "v", "a", "j", "t", "d", "f", "s", "c", "t", "ñ", "r", "d", "p", "p"
+    ;arr_palabras BYTE "manzana", "perro", "gato", "sol", "luna", "casa", "arbol", "coche", "libro", "amigo", "playa", "ciudad", "alegría", "amor", "risa", "felicidad", "caminar", "correr", "saltar", "dormir", "comer", "beber", "jugar", "aprender", "cantar", "bailar", "viajar", "familia", "trabajo", "estudiar", "computadora", "teléfono", "televisión", "música", "deporte", "montaña", "mar", "vida", "tiempo", "espacio"
+    ;arr_incompleta BYTE "man_ana",0, "per_o", "ga_o", "so_", "lu_a", "ca_a", "_rbol", "coc_e", "lib_o", "ami_o", "pla_a", "ciuda_", "alegrí_", "am_r", "ri_a", "felicida_", "cam_nar", "cor_er", "s ltar", "dormi_", "co_er", "be_er", "ju_ar", "aprende_", "can_ar", "baila_", " iajar", "f_milia", "traba_o", "es_udiar", "computa_ora", "telé_ono", "televi_ión", "músi_", "depor_e", "monta_a", "ma_", "vi_a", "tiem_o", "es_acio"
+	;arr_letras BYTE "z",0, "r", "t", "l", "n", "s", "a", "h", "r", "g", "y", "d", "a", "o", "s", "d", "i", "r", "s", "r", "m", "b", "g", "r", "t", "r", "v", "a", "j", "t", "d", "f", "s", "c", "t", "ñ", "r", "d", "p", "p"
 
+    arr_palabras BYTE "manzana",0, "perro",0, "gato",0, "sol",0, "luna",0, "casa",0, "arbol",0, "coche",0, "libro",0, "amigo",0
+    arr_incompleta BYTE "man_ana",0, "per_o",0, "ga_o",0, "so_",0, "lu_a",0, "ca_a",0, "_rbol",0, "coc_e",0, "lib_o",0, "ami_o",0
+    arr_letras BYTE "z",0, "r",0, "t",0, "l",0, "n",0, "s",0, "a",0, "h",0, "r",0, "g",0
 
 .code
 
@@ -65,8 +69,19 @@ main PROC
 
     push ebp
     mov ebp, esp
+    jmp lb_turnos
 
 lb_turnos:
+
+    push puntaje1             
+    push offset msg_puntos1   ; Pone la dirección de la cadena de formato en la pila
+    call printf          ; Llama a la función printf para imprimir la letra ingresada
+    add esp, 8 
+
+    push puntaje2             
+    push offset msg_puntos2   ; Pone la dirección de la cadena de formato en la pila
+    call printf          ; Llama a la función printf para imprimir la letra ingresada
+    add esp, 8 
     
     mov ecx, turno1
     mov edx, turno2
@@ -80,7 +95,7 @@ lb_turnos:
     mov ecx, turno1
     mov edx, turno2
 
-    .IF edx == 10
+    .IF ecx > 5
         jmp lb_verificar
     .ELSE 
         jmp lb_ingresarletra
@@ -92,7 +107,7 @@ lb_ingresarletra:
     call printf
     add esp, 4
     
-    lea eax, [arr_incompleta] ; se carga la dirección de la palabra
+    lea eax,[arr_incompleta]    ; se carga la dirección de la palabra
     push eax                        ; Pone la dirección en la pila
     push offset msg_pal
     call printf
@@ -113,33 +128,58 @@ lb_ingresarletra:
     call printf          ; Llama a la función printf para imprimir la letra ingresada
     add esp, 8           ; Limpia la pila
 
-    jmp fin
-   ;jmp label_verificarletra  ;se verifica la letra 
+    ;jmp fin
+    jmp label_verificarletra  ;se verifica la letra 
     
 label_verificarletra:
-
-    mov numero_random, 1d
-    sub ebx, ebx
-    sub eax, eax
-    mov eax, numero_random
-    mov ebx, 4
-    mul ebx
-    mov numero_random, eax
+    
     lea ecx, [arr_letras]
-    ;mov 
-    .IF ecx == letra
-        ;add puntaje1, 5
+    push ecx
+    push offset msg_esperada
+    call printf
+    add esp, 8
+    movzx eax, [arr_letras]
+    movzx ebx, letra_i
+
+    .IF ebx == eax
+        mov eax, turno1
+        mov ebx, turno2
+        .IF eax > ebx
+            add puntaje1, 5
+        .ELSE
+            add puntaje2, 5
+        .ENDIF
+        
         push offset msg_punto
         call printf
         add esp, 4
 
     .ELSE
-        ;sub puntaje1, 2
+        mov eax, turno1
+        mov ebx, turno2
+        .IF eax > ebx
+            sub puntaje1, 2
+            mov ecx, puntaje1
+            mov edx, 0d
+            .IF ecx < edx
+                add puntaje1, 2
+            .ENDIF
+        .ELSE
+            sub puntaje2, 2
+            mov ecx, puntaje2
+            mov edx, 0d
+            .IF ecx < edx
+                add puntaje2, 2
+            .ENDIF
+        .ENDIF
+
         push offset msg_nopunto
         call printf
         add esp, 4
     .ENDIF 
-        
+
+    ;jmp fin
+    jmp lb_turnos
 
 lb_verificar:
 
