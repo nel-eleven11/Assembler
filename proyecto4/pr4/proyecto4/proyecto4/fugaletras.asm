@@ -250,7 +250,8 @@ lb_turnos:
     mov ecx, turno1
     mov edx, turno2
 
-    .IF ecx == 1
+    
+    .IF edx == 0
         mov eax, turno_palabra
         mov eax, 0d
         mov turno_palabra, eax
@@ -295,10 +296,10 @@ lb_contarpalabra:
     .If eax == 0
         add ebx, 1d
     .ELSE
+        mov contador2, ebx
+        mov sel_palabra, ebx
         jmp lb_contarpalabra
     .ENDIF
-    mov contador2, ebx
-    mov sel_palabra, ebx
     
 
 lb_ingresarletra:
@@ -316,6 +317,7 @@ lb_ingresarletra:
     push offset msg_pal
     call printf
     add esp, 8
+
     push offset espacio                    ; espacio
     call printf
     add esp, 4
@@ -347,21 +349,22 @@ lb_ingresarletra:
     
 label_verificarletra:
 
-    mov ebx, sel_letra    
+    mov edx, sel_letra    
     
-    lea ecx, [arr_letras + ebx]
+    lea ecx, [arr_letras + edx]   ;se guarda la dirección de la letra que debería ser
     push ecx
     push offset msg_esperada
     call printf
+    add esp, 8
+
     push offset espacio                    ; espacio
     call printf
     add esp, 4
-    add esp, 8
-    sub ebx, ebx
-    movzx eax, [arr_letras + ebx]
-    movzx ebx, letra_i
+  
+    movzx eax, [arr_letras]       ;letra que debería ser
+    movzx ebx, letra_i                  ;letra que ingresa el usuario
 
-    .IF ebx == eax
+    .IF ebx == eax                      ;se realiza la comparación entre las letras
         mov eax, turno1
         mov ebx, turno2
         .IF eax > ebx
@@ -370,11 +373,12 @@ label_verificarletra:
             add puntaje2, 5
         .ENDIF
         
-        push offset msg_punto
-        call printf
-        push offset espacio                    ; espacio
+        push offset msg_punto   ;se imprime mensaje de ganancia de puntos
         call printf
         add esp, 4
+
+        push offset espacio                    ; espacio
+        call printf
         add esp, 4
 
     .ELSE
@@ -391,12 +395,14 @@ label_verificarletra:
         mov puntaje1, edx
         mov puntaje2, ecx
 
-        push offset msg_nopunto
+        push offset msg_nopunto             ;se imprime mensaje de pérdida de puntos
+        call printf
+        add esp, 4
+
         push offset espacio                    ; espacio
         call printf
         add esp, 4
-        call printf
-        add esp, 4
+
     .ENDIF 
 
     ;jmp fin
@@ -411,16 +417,18 @@ lb_verificar:
         push offset msg_ganador1
         call printf
         add esp, 4
-        jmp lb_menu
+
         push offset espacio                    ; espacio
         call printf
         add esp, 4
+        jmp lb_menu       
 
     .ELSEIF ebx > eax
         ;gana el jugador 2
         push offset msg_ganador2
         call printf
         add esp, 4
+
         push offset espacio                    ; espacio
         call printf
         add esp, 4
@@ -430,6 +438,7 @@ lb_verificar:
         push offset msg_empate
         call printf
         add esp, 4
+
         push offset espacio                    ; espacio
         call printf
         add esp, 4
