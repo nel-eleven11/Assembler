@@ -42,17 +42,16 @@
 ;varibles generales
     puntaje1 dword 0
     puntaje2 dword 0
-    puntomas dword 5
-    puntomenos dword 2
     char BYTE ?
     letra_i BYTE ?
     letra dword 0
-    numero_random dword 0
     letra_l BYTE ?
     turno1 dword 0
     turno2 dword 0
     opcion dword 0
-    
+    contador dword 0
+    sel_palabra dword 0
+    sel_letra dword 0
 
 ;arrays
 
@@ -113,6 +112,7 @@ lb_menu:
     add esp, 8           ; Limpia la pila
 
     mov ecx, opcion
+    
 
     .IF ecx == 1
     ;jugar seleccionado
