@@ -17,7 +17,7 @@
     msg_inicial db "Bienvenido al juego: Fuga de letras",0AH,0
     msg_ins1 db "Este juego consiste en completar las letras que faltan en la palabra que se muestra en la pantalla. Se tienen dos jugadores que van jugando por turnos y empiezan con un puntaje de 0.",0AH,0
     msg_ins2 db "Si el jugador acierta con las letras que forman la palabra, ganara 5 puntos.",0AH,0
-    msg_ins3 db "Si no cierta, se le restarán 2 puntos. Gana el jugador que haya obtenido más puntos.",0AH,0
+    msg_ins3 db "Si no cierta, se le restaran 2 puntos. Gana el jugador que haya obtenido mas puntos.",0AH,0
     msg_menu db "1. JUGAR 2. INSTRUCCIONES 3. SALIR",0AH,0
     msg_op db "Ingrese una opcion del menu",0AH,0
     msg_res db "Opcion ingresada: %d",0AH,0
@@ -38,6 +38,7 @@
     msg_esperada BYTE "Letra esperada: %s",0AH,0
     msg_empate BYTE "Hay un empate",0AH,0
     fmt_num db "%d",0
+    espacio BYTE " ",0Ah, 0
 
 ;varibles generales
     puntaje1 dword 0
@@ -86,6 +87,9 @@ main PROC
     push offset msg_inicial
     call printf 
     add esp, 4
+    push offset espacio                    ; espacio
+    call printf
+    add esp, 4
 
     jmp lb_menu
 
@@ -101,11 +105,16 @@ lb_menu:
     call printf 
     add esp, 4
 
+    push offset espacio                    ; espacio
+    call printf
+    add esp, 4
+
     lea eax, [ebp-4]     ; Obtiene la dirección de la variable local
     push eax             ; Pone la dirección en la pila
     push offset fmt_num    ; Pone la dirección de la cadena de formato en la pila
     call scanf           ; Llama a la función scanf para leer el número ingresado
     add esp, 8           ; Limpia la pila
+    
 
     
     mov eax, [ebp-4]     ; Mueve el número ingresado a eax
@@ -114,6 +123,9 @@ lb_menu:
     push offset msg_res   ; Pone la dirección de la cadena de formato en la pila
     call printf          ; Llama a la función printf para imprimir la opcion ingresada
     add esp, 8           ; Limpia la pila
+    push offset espacio                    ; espacio
+    call printf
+    add esp, 4
 
     ;se reinician las varibles
 
@@ -161,6 +173,9 @@ lb_menu:
         push offset msg_ins3
         call printf 
         add esp, 4
+        push offset espacio                    ; espacio
+        call printf
+        add esp, 4
         jmp lb_menu
     .ELSEIF ecx == 3
     ;salir
@@ -169,6 +184,9 @@ lb_menu:
     ;otro numero diferente
         push offset msg_alert
         call printf 
+        add esp, 4
+        push offset espacio                    ; espacio
+        call printf
         add esp, 4
         jmp lb_menu
     .ENDIF
@@ -195,12 +213,18 @@ lb_turnos:
     push puntaje1            
     push offset msg_puntos1   ; Pone la dirección de la cadena de formato en la pila
     call printf          ; Llama a la función printf para imprimir la letra ingresada
-    add esp, 8 
+    add esp, 8
+    push offset espacio                    ; espacio
+    call printf
+    add esp, 4
 
     push puntaje2             
     push offset msg_puntos2   ; Pone la dirección de la cadena de formato en la pila
     call printf          ; Llama a la función printf para imprimir la letra ingresada
     add esp, 8 
+    push offset espacio                    ; espacio
+    call printf
+    add esp, 4
     
     mov ecx, turno1
     mov edx, turno2
@@ -209,11 +233,17 @@ lb_turnos:
         add turno2, 1
         push offset msg_turno2
         call printf 
+        push offset espacio                    ; espacio
+        call printf
+        add esp, 4
         add esp, 4
     .ELSE
         add turno1, 1
         push offset msg_turno1
         call printf 
+        push offset espacio                    ; espacio
+        call printf
+        add esp, 4
         add esp, 4
     .ENDIF
 
@@ -267,6 +297,9 @@ lb_ingresarletra:
     push offset msg_intr
     call printf
     add esp, 4
+    push offset espacio                    ; espacio
+    call printf
+    add esp, 4
 
     mov ebx, sel_palabra
     lea eax,[arr_incompleta]    ; se carga la dirección de la palabra
@@ -274,6 +307,9 @@ lb_ingresarletra:
     push offset msg_pal
     call printf
     add esp, 8
+    push offset espacio                    ; espacio
+    call printf
+    add esp, 4
 
     lea eax, letra_i     ; Obtiene la dirección de la variable local
     push eax             ; Pone la dirección en la pila
@@ -284,11 +320,18 @@ lb_ingresarletra:
     movzx eax, letra_i  		; IMPORTANTE: Extender el valor de char (originalmente 1 Bytr)
 							; a una dword (2 Bytes) y almacenarlo en eax
     mov letra, eax
-    
+
+    push offset espacio                    ; espacio
+    call printf
+    add esp, 4
+
     push letra             ; Pone la letra en la pila
     push offset msg_m   ; Pone la dirección de la cadena de formato en la pila
     call printf          ; Llama a la función printf para imprimir la letra ingresada
     add esp, 8           ; Limpia la pila
+    push offset espacio                    ; espacio
+    call printf
+    add esp, 4
 
     ;jmp fin
     jmp label_verificarletra  ;se verifica la letra 
@@ -301,6 +344,9 @@ label_verificarletra:
     push ecx
     push offset msg_esperada
     call printf
+    push offset espacio                    ; espacio
+    call printf
+    add esp, 4
     add esp, 8
     sub ebx, ebx
     movzx eax, [arr_letras]
@@ -317,6 +363,9 @@ label_verificarletra:
         
         push offset msg_punto
         call printf
+        push offset espacio                    ; espacio
+        call printf
+        add esp, 4
         add esp, 4
 
     .ELSE
@@ -334,6 +383,9 @@ label_verificarletra:
         mov puntaje2, ecx
 
         push offset msg_nopunto
+        push offset espacio                    ; espacio
+        call printf
+        add esp, 4
         call printf
         add esp, 4
     .ENDIF 
@@ -351,16 +403,25 @@ lb_verificar:
         call printf
         add esp, 4
         jmp lb_menu
+        push offset espacio                    ; espacio
+        call printf
+        add esp, 4
 
     .ELSEIF ebx > eax
         ;gana el jugador 2
         push offset msg_ganador2
         call printf
         add esp, 4
+        push offset espacio                    ; espacio
+        call printf
+        add esp, 4
         jmp lb_menu
     .ELSE
         ;empate
-         push offset msg_empate
+        push offset msg_empate
+        call printf
+        add esp, 4
+        push offset espacio                    ; espacio
         call printf
         add esp, 4
         jmp lb_menu
