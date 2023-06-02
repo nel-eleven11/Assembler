@@ -49,9 +49,12 @@
     turno1 dword 0
     turno2 dword 0
     opcion dword 0
-    contador dword 0
+    contador1 dword 0
+    contador2 dword 0
     sel_palabra dword 0
     sel_letra dword 0
+    comparador dword 0
+    turno_palabra dword 0
 
 ;arrays
 
@@ -111,8 +114,37 @@ lb_menu:
     call printf          ; Llama a la función printf para imprimir la opcion ingresada
     add esp, 8           ; Limpia la pila
 
-    mov ecx, opcion
+    ;se reinician las varibles
+
+    mov eax, puntaje1
+    sub eax, eax
+    mov puntaje1, eax
+
+    mov eax, puntaje2
+    sub eax, eax
+    mov puntaje2, eax
+
+    mov eax, turno1
+    sub eax, eax
+    mov turno1, eax
+
+    mov eax, turno2
+    sub eax, eax
+    mov turno2, eax
+
+    mov eax, turno_palabra
+    sub eax, eax
+    mov turno_palabra, eax
+
+    mov eax, contador1
+    sub eax, eax
+    mov contador1, eax
+
+    mov eax, contador2
+    sub eax, eax
+    mov contador2, eax
     
+    mov ecx, opcion
 
     .IF ecx == 1
     ;jugar seleccionado
@@ -143,7 +175,23 @@ lb_menu:
 
 lb_turnos:
 
-    push puntaje1             
+    ;verificar si algún puntaje es menor a 0
+
+    mov eax, puntaje1
+    mov ebx, puntaje2
+
+    .IF eax < comparador
+        mov eax, comparador
+    .ENDIF
+
+    .IF ebx < comparador
+        mov ebx, comparador
+    .ENDIF
+
+    mov puntaje1, eax
+    mov puntaje2, ebx
+
+    push puntaje1            
     push offset msg_puntos1   ; Pone la dirección de la cadena de formato en la pila
     call printf          ; Llama a la función printf para imprimir la letra ingresada
     add esp, 8 
@@ -168,6 +216,8 @@ lb_turnos:
         add esp, 4
     .ENDIF
 
+    add turno_palabra, 1d
+
     mov ecx, turno1
     mov edx, turno2
 
@@ -177,13 +227,51 @@ lb_turnos:
         jmp lb_ingresarletra
     .ENDIF
 
+lb_contarletra:
+
+    mov ebx, contador1
+    movzx eax, [arr_letras + ebx]
+    
+    .IF ebx == turno_palabra
+        jmp lb_contarpalabra
+    .ENDIF
+
+    .If eax == 0
+        add ebx, 1d
+    .ELSE
+        jmp lb_contarletra
+    .ENDIF
+    mov contador1, ebx
+    
+    mov sel_letra, ebx
+
+lb_contarpalabra:
+
+    mov ebx, contador2
+    movzx eax, [arr_incompleta + ebx]
+    
+    .IF ebx == turno_palabra
+        jmp lb_ingresarletra
+    .ENDIF
+
+    .If eax == 0
+        add ebx, 1d
+    .ELSE
+        jmp lb_contarpalabra
+    .ENDIF
+    mov contador2, ebx
+    mov sel_palabra, ebx
+    
+
 lb_ingresarletra:
  
     push offset msg_intr
     call printf
     add esp, 4
+
+    mov ebx, sel_palabra
     
-    lea eax,[arr_incompleta]    ; se carga la dirección de la palabra
+    lea eax,[arr_incompleta + ebx]    ; se carga la dirección de la palabra
     push eax                        ; Pone la dirección en la pila
     push offset msg_pal
     call printf
@@ -208,13 +296,15 @@ lb_ingresarletra:
     jmp label_verificarletra  ;se verifica la letra 
     
 label_verificarletra:
-    
-    lea ecx, [arr_letras]
+
+    mov ebx, sel_letra    
+    lea ecx, [arr_letras + ebx]
     push ecx
     push offset msg_esperada
     call printf
     add esp, 8
-    movzx eax, [arr_letras]
+    sub ebx, ebx
+    movzx eax, [arr_letras + ebx]
     movzx ebx, letra_i
 
     .IF ebx == eax
@@ -233,13 +323,16 @@ label_verificarletra:
     .ELSE
         mov eax, turno1
         mov ebx, turno2
+        mov edx, puntaje1
+        mov ecx, puntaje2
         .IF eax > ebx
-            sub puntaje1, 2
-            
+            sub edx, 2
         .ELSE
-            sub puntaje2, 2
-            
+            sub ecx, 2
         .ENDIF
+
+        mov puntaje1, edx
+        mov puntaje2, ecx
 
         push offset msg_nopunto
         call printf
