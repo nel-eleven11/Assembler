@@ -1,0 +1,29 @@
+.386
+.model flat, stdcall
+
+.data 
+num1 word	3d
+comparador word 1d
+num2 word   5d
+
+.code 
+MAIN PROC
+	;.ERRNDEF comparador
+	mov ax, 0
+	mov bx, 1
+	cmp ax, bx
+	je lp1
+	jne lp2
+
+lp1:
+	mov ax, 1
+	jmp endl
+
+lp2:
+	mov bx, 1
+
+endl:
+	RET
+
+MAIN ENDP 
+END MAIN

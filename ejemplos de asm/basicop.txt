@@ -1,0 +1,49 @@
+.386
+.model flat, stdcall, c
+.stack 4096
+
+.data
+arr DWORD 1, 2, 3
+tst dword 0
+
+.code
+
+main1 proc	
+	;indirect addressing
+	mov esi, offset arr
+	mov edx, sizeof	arr
+	mov ecx, [esi+4]
+
+	;multiply example (mul)
+	sub ax, ax
+	mov ax, 23
+	mov bx, 10
+	mul bx
+
+	;multiply example (imul)
+	mov ebx, 4
+	imul ebx, 4
+
+	;division
+	mov ax, 700
+	mov bx, 36
+	div bx   ;cociente en al y residuo en ah
+
+	;Operaciones logicas
+	mov ax, 1010101010101010b
+	xor ax, 1111111111111111b
+
+	mov ax, 1010101010101010b
+	and ax, 1010101010101010b
+
+	mov ax, 1010101010101010b
+	or ax,  0000000000000000b
+
+	mov ax, 0b
+	not ax
+
+	mov tst, 10
+
+ret
+main1 endp
+end

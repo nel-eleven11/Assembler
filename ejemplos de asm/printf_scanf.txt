@@ -1,0 +1,41 @@
+; --------------------------------
+; 2. Assembler - MASM for x86
+; --------------------------------
+
+includelib libcmt.lib
+includelib libvcruntime.lib
+includelib libucrt.lib
+includelib legacy_stdio_definitions.lib
+
+.model flat, C
+
+printf proto c : vararg
+scanf  proto c : vararg
+
+.data
+
+i       byte 0
+msg1    byte "Writes 10 Hello World", 0Ah, 0
+msg2    byte ". Hello world!", 0Ah, 0
+msg3    byte 13, 10, "Press ENTER to quit.", 0Ah, 0
+format  byte "%d", 0
+
+.code
+
+main    proc
+        invoke printf, addr msg1
+
+ploop:
+        invoke printf, addr format, i  ; addr= ubica la direccion de memoria del mensaje format=contiene el formato de impresion i=valor a imprimir
+        invoke printf, addr msg2       ; addr= ubica la direccion de memoria del mensaje msg2=mensaje a imprimir
+        inc i ;contador de impresiones
+        cmp i, 10 ;verifica si ya se imprimio 10 veces el mensaje
+jne     ploop
+
+        invoke printf, addr msg3
+        invoke scanf
+        ret
+
+main    endp
+        end  
+

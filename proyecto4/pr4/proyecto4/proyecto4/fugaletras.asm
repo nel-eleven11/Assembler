@@ -15,11 +15,19 @@
 
 ;mensages y fmt
     msg_inicial db "Bienvenido al juego: Fuga de letras",0AH,0
+    msg_punto db "El jugador obtuvo un punto",0AH,0
+    msg_nopunto db "El jugador perdio un punto",0AH,0
+    msg_puntos db "Puntos del jugador: %d",0AH,0
+    msg_intr db "Ingrese una letra para completar la palabra",0AH,0
+    msg_m db "La letra ingresada es: %s"
     fmt_letra db "%s",0AH,0
 
 ;varibles generales
     puntaje1 dword 0
     puntaje2 dword 0
+    puntomas dword 5
+    puntomenos dword 2
+    
 
 ;arrays
 
@@ -39,6 +47,27 @@
     extrn exit:near
 
 main PROC
+
+    push offset msg_intr
+    call printf
+    add esp, 4
+
+    lea eax, [ebp-4]     ; Obtiene la dirección de la variable local
+    push eax             ; Pone la dirección en la pila
+    push offset fmt_letra    ; Pone la dirección de la cadena de formato en la pila
+    call scanf           ; Llama a la función scanf para leer el número ingresado
+    add esp, 8           ; Limpia la pila
+
+    mov eax, [ebp-4]     ; Mueve la letra ingresada a eax
+    push eax             ; Pone la letra en la pila
+    push offset msg_m   ; Pone la dirección de la cadena de formato en la pila
+    call printf          ; Llama a la función printf para imprimir la letra ingresada
+    add esp, 8           ; Limpia la pila
+
+    ;jmp label_verificarletra  ;se verifica la letra
+    
+label_verificarletra:
+        
 
 
 
