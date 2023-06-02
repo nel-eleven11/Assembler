@@ -17,13 +17,17 @@
     msg_inicial db "Bienvenido al juego: Fuga de letras",0AH,0
     msg_punto db "El jugador obtuvo un punto",0AH,0
     msg_nopunto db "El jugador perdio un punto",0AH,0
-    msg_puntos db "Puntos del jugador: %d",0AH,0
+    msg_puntos1 db "Puntos del jugador 1: %d",0AH,0
+    msg_puntos2 db "Puntos del jugador 2: %d",0AH,0
     msg_intr db "Ingrese una letra para completar la palabra",0AH,0
     msg_pal BYTE "La palabra es: %s",0AH,0
     msg_m db "La letra ingresada es: %c",0AH,0
-    fmt_letra db "%c",0
+    fmt_char db "%c",0
     fmt_string db "%s",0
-    strBuff BYTE 255 DUP(?) ; Buffer para almacenar la cadena ingresada, máx 255 caracteres
+    msg_turno1 db "Turno del jugador 1",0AH,0
+    msg_turno2 db "Turno del jugador 2",0AH,0
+    msg_ganador1 BYTE "Gana el jugador 1", 0AH, 0
+	msg_ganador2 BYTE "Gana el jugador 2", 0AH, 0
 
 ;varibles generales
     puntaje1 dword 0
@@ -31,16 +35,20 @@
     puntomas dword 5
     puntomenos dword 2
     char BYTE ?
+    letra_i BYTE ?
     letra dword 0
     numero_random dword 0
     letra_l BYTE "a"
+    turno1 dword 0
+    turno2 dword 0
     
 
 ;arrays
 
     arr_palabras BYTE "manzana", "perro", "gato", "sol", "luna", "casa", "arbol", "coche", "libro", "amigo", "playa", "ciudad", "alegría", "amor", "risa", "felicidad", "caminar", "correr", "saltar", "dormir", "comer", "beber", "jugar", "aprender", "cantar", "bailar", "viajar", "familia", "trabajo", "estudiar", "computadora", "teléfono", "televisión", "música", "deporte", "montaña", "mar", "vida", "tiempo", "espacio"
-    arr_incompleta BYTE "man ana", "per o", "ga o", "so", "lu a", "ca a", " rbol", "coc e", "lib o", "ami o", "pla a", "ciuda ", "alegrí ", "am r", "ri a", "felicida ", "cam nar", "cor er", "s ltar", "dormi ", "co er", "be er", "ju ar", "aprende ", "can ar", "baila ", " iajar", "f milia", "traba o", "es udiar", "computa ora", "telé ono", "televi ión", "músi a", "depor e", "monta a", "ma ", "vi a", "tiem o", "es acio"
+    arr_incompleta BYTE "man_ana", "per_o", "ga_o", "so_", "lu_a", "ca_a", "_rbol", "coc_e", "lib_o", "ami_o", "pla_a", "ciuda_", "alegrí_", "am_r", "ri_a", "felicida_", "cam_nar", "cor_er", "s ltar", "dormi_", "co_er", "be_er", "ju_ar", "aprende_", "can_ar", "baila_", " iajar", "f_milia", "traba_o", "es_udiar", "computa_ora", "telé_ono", "televi_ión", "músi_", "depor_e", "monta_a", "ma_", "vi_a", "tiem_o", "es_acio"
 	arr_letras BYTE "z", "r", "t", "l", "n", "s", "a", "h", "r", "g", "y", "d", "a", "o", "s", "d", "i", "r", "s", "r", "m", "b", "g", "r", "t", "r", "v", "a", "j", "t", "d", "f", "s", "c", "t", "ñ", "r", "d", "p", "p"
+
 
 .code
 
@@ -58,31 +66,45 @@ main PROC
     push ebp
     mov ebp, esp
 
-    jmp lb_ingresarletra
+lb_turnos:
+    
+    mov ecx, turno1
+    mov edx, turno2
+    
+    .IF ecx > edx
+        add turno2, 1
+    .ELSE
+        add turno1, 1
+    .ENDIF
+
+    mov ecx, turno1
+    mov edx, turno2
+
+    .IF edx == 10
+        jmp lb_verificar
+    .ELSE 
+        jmp lb_ingresarletra
+    .ENDIF
 
 lb_ingresarletra:
  
     push offset msg_intr
     call printf
     add esp, 4
-
-    mov esi, offset arr_incompleta
-    mov eax, [esi]		; DIRECCIONAM. INDIRECTO: Cargar el valor del i-esimo elem de array a eax
-    lea  ebx, strBuff 		; Obtener dirección del buffer
-    push ebx 
-    push eax			; Pasar valor a pila p/imprimir
-    push offset strBuff
-    push offset  msg_pal
+    
+    lea eax, [arr_incompleta] ; se carga la dirección de la palabra
+    push eax                        ; Pone la dirección en la pila
+    push offset msg_pal
     call printf
-    add esp, 16
+    add esp, 8
 
-    lea eax, char     ; Obtiene la dirección de la variable local
+    lea eax, letra_i     ; Obtiene la dirección de la variable local
     push eax             ; Pone la dirección en la pila
-    push offset fmt_letra    ; Pone la dirección de la cadena de formato en la pila
+    push offset fmt_string    ; Pone la dirección de la cadena de formato en la pila
     call scanf           ; Llama a la función scanf para leer el número ingresado
     add esp, 8           ; Limpia la pila
 
-    movzx eax, char  		; IMPORTANTE: Extender el valor de char (originalmente 1 Bytr)
+    movzx eax, letra_i  		; IMPORTANTE: Extender el valor de char (originalmente 1 Bytr)
 							; a una dword (2 Bytes) y almacenarlo en eax
     mov letra, eax
     
@@ -91,11 +113,11 @@ lb_ingresarletra:
     call printf          ; Llama a la función printf para imprimir la letra ingresada
     add esp, 8           ; Limpia la pila
 
-    ;jmp label_verificarletra  ;se verifica la letra
+    jmp fin
+   ;jmp label_verificarletra  ;se verifica la letra 
     
 label_verificarletra:
 
-    mov esi, offset arr_letras
     mov numero_random, 1d
     sub ebx, ebx
     sub eax, eax
@@ -103,10 +125,9 @@ label_verificarletra:
     mov ebx, 4
     mul ebx
     mov numero_random, eax
-    add esi, eax
-    mov eax, [esi]		;DIRECCIONAM. INDIRECTO: Cargar el valor del i-esimo elem de array a eax
-    movzx ebx, letra_l
-    .IF  eax == letra
+    lea ecx, [arr_letras]
+    ;mov 
+    .IF ecx == letra
         ;add puntaje1, 5
         push offset msg_punto
         call printf
@@ -120,11 +141,30 @@ label_verificarletra:
     .ENDIF 
         
 
+lb_verificar:
+
+    mov eax, puntaje1
+    mov ebx, puntaje2
+    .IF eax > ebx
+        ;gana el jugador 1
+        push offset msg_ganador1
+        call printf
+        add esp, 4
+        jmp fin
+
+    .ELSE
+        ;gana el jugador 2
+        push offset msg_ganador2
+        call printf
+        add esp, 4
+        jmp fin
+    .ENDIF
 
 
+fin:
+	push 0
+	call exit
 
-    push 0
-    call exit ;
 main ENDP
 
 END
