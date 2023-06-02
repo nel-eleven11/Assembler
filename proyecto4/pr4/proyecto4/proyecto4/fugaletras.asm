@@ -1,8 +1,5 @@
 ;Universidad del Valle de Guatemala
 ;Nelson García Bravatti 22434
-;Gabriel Paz 221087
-;Oscar Fuentes
-;Andy Fuentes 
 ;Org de computadoras y Assembler
 ;Proyecto 4
 ;Descripción: Juego fuga de letras
@@ -29,8 +26,6 @@
     msg_intr db "Ingrese una letra para completar la palabra",0AH,0
     msg_pal BYTE "La palabra es: %s",0AH,0
     msg_m db "La letra ingresada es: %c",0AH,0
-    fmt_char db "%c",0
-    fmt_string db "%s",0
     msg_turno1 db "Turno del jugador 1",0AH,0
     msg_turno2 db "Turno del jugador 2",0AH,0
     msg_ganador1 BYTE "Gana el jugador 1", 0AH, 0
@@ -38,6 +33,8 @@
     msg_esperada BYTE "Letra esperada: %s",0AH,0
     msg_empate BYTE "Hay un empate",0AH,0
     fmt_num db "%d",0
+    fmt_char db "%c",0
+    fmt_string db "%s",0
     espacio BYTE " ",0Ah, 0
 
 ;varibles generales
@@ -84,7 +81,7 @@ main PROC
     push ebp
     mov ebp, esp
 
-    push offset msg_inicial
+    push offset msg_inicial         ;mensaje inicial presentando el juego
     call printf 
     add esp, 4
     push offset espacio                    ; espacio
@@ -101,13 +98,15 @@ lb_menu:
     call printf 
     add esp, 4
 
-    push offset msg_menu
+    push offset msg_menu            ;opciones del menu
     call printf 
     add esp, 4
 
     push offset espacio                    ; espacio
     call printf
     add esp, 4
+
+    ;el usuario elige una opción del menú
 
     lea eax, [ebp-4]     ; Obtiene la dirección de la variable local
     push eax             ; Pone la dirección en la pila
@@ -161,10 +160,10 @@ lb_menu:
 
     .IF ecx == 1
     ;jugar seleccionado
-        jmp lb_turnos
+        jmp lb_turnos               ;comienza el juego
     .ELSEIF ecx == 2
     ;instrucciones
-        push offset msg_ins1
+        push offset msg_ins1            ;se imprimen las instrucciones
         call printf 
         add esp, 4
         push offset msg_ins2
@@ -179,16 +178,16 @@ lb_menu:
         jmp lb_menu
     .ELSEIF ecx == 3
     ;salir
-        jmp fin
+        jmp fin                         ;se sale del juego
     .ELSE
     ;otro numero diferente
-        push offset msg_alert
+        push offset msg_alert           ;si se ingresa un número no válido, imprime una alerta
         call printf 
         add esp, 4
         push offset espacio                    ; espacio
         call printf
         add esp, 4
-        jmp lb_menu
+        jmp lb_menu                     ;se regresa al menú
     .ENDIF
     
 
@@ -229,28 +228,28 @@ lb_turnos:
     mov ecx, turno1
     mov edx, turno2
     
-    .IF ecx > edx
+    .IF ecx > edx               ;se comparan los turnos para calcular cuál es el nuevo turno
         add turno2, 1
         push offset msg_turno2
         call printf 
+        add esp, 4
         push offset espacio                    ; espacio
         call printf
-        add esp, 4
         add esp, 4
     .ELSE
         add turno1, 1
         push offset msg_turno1
         call printf 
+        add esp, 4
         push offset espacio                    ; espacio
         call printf
-        add esp, 4
         add esp, 4
     .ENDIF
 
     mov ecx, turno1
     mov edx, turno2
 
-    
+    ;se verifica cual palabra debería usarse para el turno
     .IF edx == 0
         mov eax, turno_palabra
         mov eax, 0d
@@ -262,30 +261,30 @@ lb_turnos:
     .ENDIF  
 
     .IF ecx > 5
-        jmp lb_verificar
+        jmp lb_verificar            ;se salta a la verificación de los puntajes
     .ELSE 
-        jmp lb_contarletra
+        jmp lb_contarletra         ;se continua con el juego
     .ENDIF
 
 lb_contarletra:
-
+    ;aquí se calcula cuantas posiciones debería de sumarse al array para obtener la letra corespondiente
     mov ebx, contador1
     mov ecx, sel_letra
     mov eax, turno_palabra
     .IF ebx == eax
         mov sel_letra, ecx
-        jmp lb_ingresarletra
+        jmp lb_ingresarletra            ;se salta para pedir la letra a ingresar
     .ELSE
         add ecx, 2d
         inc ebx
         mov contador1, ebx
         mov sel_letra, ecx
-        jmp lb_contarletra
+        jmp lb_contarletra              ;se vuelve al label, hace falta todavía
     .ENDIF
 
 
 lb_contarpalabra:
-
+        ;aquí se calcula cuantas posiciones debería de sumarse al array para obtener la palabra corespondiente
     mov ebx, contador2
     movzx eax, [arr_incompleta]
     
@@ -298,13 +297,13 @@ lb_contarpalabra:
     .ELSE
         mov contador2, ebx
         mov sel_palabra, ebx
-        jmp lb_contarpalabra
+        jmp lb_contarpalabra            ;se vuelve al label, hace falta todavía
     .ENDIF
     
 
 lb_ingresarletra:
  
-    push offset msg_intr
+    push offset msg_intr        ;mensaje
     call printf
     add esp, 4
     push offset espacio                    ; espacio
@@ -322,11 +321,11 @@ lb_ingresarletra:
     call printf
     add esp, 4
 
-    lea eax, letra_i     ; Obtiene la dirección de la variable local
-    push eax             ; Pone la dirección en la pila
+    lea eax, letra_i            ; Obtiene la dirección de la variable local
+    push eax                     ; Pone la dirección en la pila
     push offset fmt_string    ; Pone la dirección de la cadena de formato en la pila
-    call scanf           ; Llama a la función scanf para leer la letra ingresado
-    add esp, 8           ; Limpia la pila
+    call scanf                  ; Llama a la función scanf para leer la letra ingresada
+    add esp, 8                   ; Limpia la pila
 
     movzx eax, letra_i  		; IMPORTANTE: Extender el valor de char (originalmente 1 Bytr)
 							; a una dword (2 Bytes) y almacenarlo en eax
@@ -361,13 +360,13 @@ label_verificarletra:
     call printf
     add esp, 4
   
-    movzx eax, [arr_letras]       ;letra que debería ser
-    movzx ebx, letra_i                  ;letra que ingresa el usuario
+    movzx eax, [arr_letras]       ;letra que debería ser, se extiende el valor
+    movzx ebx, letra_i                  ;letra que ingresa el usuario, se extiende el valor
 
     .IF ebx == eax                      ;se realiza la comparación entre las letras
         mov eax, turno1
         mov ebx, turno2
-        .IF eax > ebx
+        .IF eax > ebx               ;se verifica a qué jugador hay que sumarle puntos
             add puntaje1, 5
         .ELSE
             add puntaje2, 5
@@ -386,7 +385,7 @@ label_verificarletra:
         mov ebx, turno2
         mov edx, puntaje1
         mov ecx, puntaje2
-        .IF eax > ebx
+        .IF eax > ebx           ;se verifica a qué jugador hay que restarle puntos
             sub edx, 2
         .ELSE
             sub ecx, 2
@@ -406,7 +405,7 @@ label_verificarletra:
     .ENDIF 
 
     ;jmp fin
-    jmp lb_turnos
+    jmp lb_turnos                       ;se regresa a turnos, para el siguiente turno
 
 lb_verificar:
 
@@ -435,19 +434,19 @@ lb_verificar:
         jmp lb_menu
     .ELSE
         ;empate
-        push offset msg_empate
+        push offset msg_empate          ;si hay empate no gana nadie
         call printf
         add esp, 4
 
         push offset espacio                    ; espacio
         call printf
         add esp, 4
-        jmp lb_menu
+        jmp lb_menu                 ;se regresa al menu
     .ENDIF
 
 
 fin:
-	push 0
+	push 0                      ;se finaliza el programa
 	call exit
 
 main ENDP
