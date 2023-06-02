@@ -15,6 +15,13 @@
 
 ;mensages y fmt
     msg_inicial db "Bienvenido al juego: Fuga de letras",0AH,0
+    msg_ins1 db "Este juego consiste en completar las letras que faltan en la palabra que se muestra en la pantalla. Se tienen dos jugadores que van jugando por turnos y empiezan con un puntaje de 0.",0AH,0
+    msg_ins2 db "Si el jugador acierta con las letras que forman la palabra, ganara 5 puntos.",0AH,0
+    msg_ins3 db "Si no cierta, se le restarán 2 puntos. Gana el jugador que haya obtenido más puntos.",0AH,0
+    msg_menu db "1. JUGAR 2. INSTRUCCIONES 3. SALIR",0AH,0
+    msg_op db "Ingrese una opcion del menu",0AH,0
+    msg_res db "Opcion ingresada: %d",0AH,0
+    msg_alert db "Ingrese un numero del 1 al 3 por favor.",0AH,0
     msg_punto db "El jugador obtuvo un punto",0AH,0
     msg_nopunto db "El jugador perdio un punto",0AH,0
     msg_puntos1 db "Puntos del jugador 1: %d",0AH,0
@@ -29,6 +36,8 @@
     msg_ganador1 BYTE "Gana el jugador 1", 0AH, 0
 	msg_ganador2 BYTE "Gana el jugador 2", 0AH, 0
     msg_esperada BYTE "Letra esperada: %s",0AH,0
+    msg_empate BYTE "Hay un empate",0AH,0
+    fmt_num db "%d",0
 
 ;varibles generales
     puntaje1 dword 0
@@ -42,6 +51,7 @@
     letra_l BYTE ?
     turno1 dword 0
     turno2 dword 0
+    opcion dword 0
     
 
 ;arrays
@@ -69,7 +79,67 @@ main PROC
 
     push ebp
     mov ebp, esp
-    jmp lb_turnos
+
+    push offset msg_inicial
+    call printf 
+    add esp, 4
+
+    jmp lb_menu
+
+    ;introducción del juego y menú
+
+lb_menu: 
+
+    push offset msg_op
+    call printf 
+    add esp, 4
+
+    push offset msg_menu
+    call printf 
+    add esp, 4
+
+    lea eax, [ebp-4]     ; Obtiene la dirección de la variable local
+    push eax             ; Pone la dirección en la pila
+    push offset fmt_num    ; Pone la dirección de la cadena de formato en la pila
+    call scanf           ; Llama a la función scanf para leer el número ingresado
+    add esp, 8           ; Limpia la pila
+
+    
+    mov eax, [ebp-4]     ; Mueve el número ingresado a eax
+    mov opcion, eax       ;se guarda 
+    push eax             ; Pone el número en la pila
+    push offset msg_res   ; Pone la dirección de la cadena de formato en la pila
+    call printf          ; Llama a la función printf para imprimir la opcion ingresada
+    add esp, 8           ; Limpia la pila
+
+    mov ecx, opcion
+
+    .IF ecx == 1
+    ;jugar seleccionado
+        jmp lb_turnos
+    .ELSEIF ecx == 2
+    ;instrucciones
+        push offset msg_ins1
+        call printf 
+        add esp, 4
+        push offset msg_ins2
+        call printf 
+        add esp, 4
+        push offset msg_ins3
+        call printf 
+        add esp, 4
+        jmp lb_menu
+    .ELSEIF ecx == 3
+    ;salir
+        jmp fin
+    .ELSE
+    ;otro numero diferente
+        push offset msg_alert
+        call printf 
+        add esp, 4
+        jmp lb_menu
+    .ENDIF
+    
 
 lb_turnos:
 
@@ -88,8 +158,14 @@ lb_turnos:
     
     .IF ecx > edx
         add turno2, 1
+        push offset msg_turno2
+        call printf 
+        add esp, 4
     .ELSE
         add turno1, 1
+        push offset msg_turno1
+        call printf 
+        add esp, 4
     .ENDIF
 
     mov ecx, turno1
@@ -116,7 +192,7 @@ lb_ingresarletra:
     lea eax, letra_i     ; Obtiene la dirección de la variable local
     push eax             ; Pone la dirección en la pila
     push offset fmt_string    ; Pone la dirección de la cadena de formato en la pila
-    call scanf           ; Llama a la función scanf para leer el número ingresado
+    call scanf           ; Llama a la función scanf para leer la letra ingresado
     add esp, 8           ; Limpia la pila
 
     movzx eax, letra_i  		; IMPORTANTE: Extender el valor de char (originalmente 1 Bytr)
@@ -159,18 +235,10 @@ label_verificarletra:
         mov ebx, turno2
         .IF eax > ebx
             sub puntaje1, 2
-            mov ecx, puntaje1
-            mov edx, 0d
-            .IF ecx < edx
-                add puntaje1, 2
-            .ENDIF
+            
         .ELSE
             sub puntaje2, 2
-            mov ecx, puntaje2
-            mov edx, 0d
-            .IF ecx < edx
-                add puntaje2, 2
-            .ENDIF
+            
         .ENDIF
 
         push offset msg_nopunto
@@ -190,14 +258,20 @@ lb_verificar:
         push offset msg_ganador1
         call printf
         add esp, 4
-        jmp fin
+        jmp lb_menu
 
-    .ELSE
+    .ELSEIF ebx > eax
         ;gana el jugador 2
         push offset msg_ganador2
         call printf
         add esp, 4
-        jmp fin
+        jmp lb_menu
+    .ELSE
+        ;empate
+         push offset msg_empate
+        call printf
+        add esp, 4
+        jmp lb_menu
     .ENDIF
 
 
