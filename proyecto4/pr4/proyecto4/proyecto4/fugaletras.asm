@@ -247,15 +247,23 @@ lb_turnos:
         add esp, 4
     .ENDIF
 
-    inc turno_palabra
-
     mov ecx, turno1
     mov edx, turno2
+
+    .IF ecx == 1
+        mov eax, turno_palabra
+        mov eax, 0d
+        mov turno_palabra, eax
+    .ELSE
+        mov eax, turno_palabra
+        add eax, 1d
+        mov turno_palabra, eax
+    .ENDIF  
 
     .IF ecx > 5
         jmp lb_verificar
     .ELSE 
-        jmp lb_ingresarletra
+        jmp lb_contarletra
     .ENDIF
 
 lb_contarletra:
@@ -264,15 +272,16 @@ lb_contarletra:
     mov ecx, sel_letra
     mov eax, turno_palabra
     .IF ebx == eax
+        mov sel_letra, ecx
         jmp lb_ingresarletra
     .ELSE
         add ecx, 2d
         inc ebx
         mov contador1, ebx
+        mov sel_letra, ecx
         jmp lb_contarletra
     .ENDIF
 
-    mov sel_letra, ecx
 
 lb_contarpalabra:
 
@@ -340,7 +349,7 @@ label_verificarletra:
 
     mov ebx, sel_letra    
     
-    lea ecx, [arr_letras]
+    lea ecx, [arr_letras + ebx]
     push ecx
     push offset msg_esperada
     call printf
@@ -349,7 +358,7 @@ label_verificarletra:
     add esp, 4
     add esp, 8
     sub ebx, ebx
-    movzx eax, [arr_letras]
+    movzx eax, [arr_letras + ebx]
     movzx ebx, letra_i
 
     .IF ebx == eax
