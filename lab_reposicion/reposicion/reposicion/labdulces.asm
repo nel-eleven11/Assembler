@@ -145,8 +145,8 @@ lb_menu:
         add esp, 4
 
         call inventario    ;se llama subrutina
-        jmp lb_menu                     ;se regresa al menú
 
+        jmp lb_menu                     ;se regresa al menú
     .ELSEIF ecx == 3
     ;salir
  
@@ -352,8 +352,7 @@ fin:
 
 main ENDP
 
-inventario PROC
-    
+inventario PROC             ;subrutina para ver inventario
     push offset espacio                    ; espacio
     call printf
     add esp, 4
@@ -377,7 +376,7 @@ inventario PROC
 	push eax			; Pasar valor a pila p/imprimir
 	push offset msg_inve2		; Pasar formato 
 	call printf
-    add esp, 4
+    add esp, 8
 
 	sub ebx, 4			; Decrementar "contador"
 	add esi, 4			; Moverse al sig. elem. del array
@@ -390,7 +389,7 @@ inventario PROC
 	push eax			; Pasar valor a pila p/imprimir
 	push offset msg_inve3		; Pasar formato 
 	call printf
-    add esp, 4
+    add esp, 8
 
     sub ebx, 4			; Decrementar "contador"
 	add esi, 4			; Moverse al sig. elem. del array
@@ -403,19 +402,13 @@ inventario PROC
 	push eax			; Pasar valor a pila p/imprimir
 	push offset msg_inve4		; Pasar formato 
 	call printf
-    add esp, 4
-
-    sub ebx, 4			; Decrementar "contador"
-	add esi, 4			; Moverse al sig. elem. del array
+    add esp, 8
 	
     push offset msg_inve5                    ; linea de la tabla
     call printf
     add esp, 4
 
-    pop esi
-    mov esp, ebp
-	pop ebp 
-
+    ret
 inventario ENDP
 
 END
